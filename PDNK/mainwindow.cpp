@@ -440,7 +440,7 @@ void MainWindow::on_AmountOfSelectableVariants_valueChanged(int arg1)
 {
     //Сначала сделать загрузку данных из инфоНода
     //------
-    //Здесь ^
+    //Здесь ^^
     if (arg1 > 0)
         ui->TabVariant->setVisible(true);//НЕ МОЖЕТ БЫТЬ
     else ui->TabVariant->setVisible(false);
