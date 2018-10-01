@@ -28,7 +28,7 @@ QString tmpName;
 int selectedlvl=-1;
 int selectednum=-1;
 int selectedk = -1;
-
+int SelectableVariantsOld=0;
 int tmpSize; // for updating QuestsCounter
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -421,10 +421,29 @@ void MainWindow::slotMyNumIs(int smth)
     //Заполнение данных из infoNode
     ui->NodeDescription->setText(infoItems[selectedk]->NodeDescription);
     ui->NodeFormulas->setText(infoItems[selectedk]->NodeFormulas);
-    //Загрузка кнопок из infoNode
-    //1. Очистить предыдущие кнопки
-    //2. Создать новые
+    ui->AmountOfSelectableVariants->setMinimum(infoItems[selectedk]->AmountOfSelectableVariants);
     ui->AmountOfSelectableVariants->setValue(infoItems[selectedk]->AmountOfSelectableVariants);
+    SelectableVariantsOld = infoItems[selectedk]->AmountOfSelectableVariants;
+    //Загрузка кнопок из infoNode
+    //1. Удалить табы
+    ui->TabVariant->clear(); //"Removes all the pages, but does not delete them" Проверить влияет ли на память?
+    if (infoItems[selectedk]->AmountOfSelectableVariants == 0)
+        ui->TabVariant->setVisible(false);
+    else
+        ui->TabVariant->setVisible(true);
+    //2. Создать новые загрузив информацию из inoda
+    for (int i=0; i<infoItems[selectedk]->AmountOfSelectableVariants; i++)
+    {
+        vart = new VarTabClass();
+        connect(this, SIGNAL(fillButtonText(QString)), vart, SLOT(slotfillbuttonText(QString)));
+        connect(this, SIGNAL(fillNumberOfOutcomes(int)), vart, SLOT(slotfillNumberOfOutcomes(int)));
+        connect(vart, SIGNAL(SendButtonText(int, QString)), infoItems[selectedk], SLOT(setButtonText(int btnnum, QString txt)));
+        connect(vart, SIGNAL(SendNumberOfOutcomes(int, int)), infoItems[selectedk], SLOT(setNumberOfOutcomes(int btnnum, int NOO)));
+        vart->id=i;    //ИСПРАВИТЬ ЧТОБЫ ЗДЕСЬ БЫЛ УНИКАЛЬНЫЙ ID
+        ui->TabVariant->addTab(vart, QString("Вариант %0").arg(vart->id+1));
+        emit fillButtonText(infoItems[selectedk]->text[i]);
+        emit fillNumberOfOutcomes(infoItems[selectedk]->NumberOfOutcomes[i]);
+    }
 }
 
 void MainWindow::slotsetScrolls(int prev, int next)
@@ -432,43 +451,30 @@ void MainWindow::slotsetScrolls(int prev, int next)
     ui->OrderName->setText(QString::number(next));
 }
 
-int SelectableVariantsOld=0;
-QVector <VarTabClass*> TabTmprLine;
-QVector <QVector <VarTabClass*>> TabStorage; //Номер столбца - номер этапа. Номер строки - номер кнопки.
-QVector <int> TabDictionary; //Порядковый номер - соответствующий номер в TabStorage. Значение - глобальный номер этапа.
+
 void MainWindow::on_AmountOfSelectableVariants_valueChanged(int arg1)
 {
-    //Сначала сделать загрузку данных из инфоНода
-    //------
-    //Здесь ^^
-    if (arg1 > 0)
-        ui->TabVariant->setVisible(true);//НЕ МОЖЕТ БЫТЬ
-    else ui->TabVariant->setVisible(false);
-    if (arg1 > SelectableVariantsOld)
+    if (AmountOfFirstNodes > 0)
+        ui->TabVariant->setVisible(true);//Изначально скрыт, нужно сделать видимым при создании первой кнопки
+    if (arg1 > SelectableVariantsOld)//Если добавляется новая кнопка
     {
         vart = new VarTabClass();
         connect(this, SIGNAL(fillButtonText(QString)), vart, SLOT(slotfillbuttonText(QString)));
         connect(this, SIGNAL(fillNumberOfOutcomes(int)), vart, SLOT(slotfillNumberOfOutcomes(int)));
-        connect(vart,SIGNAL(deleteit(int)),this,SLOT(TabDelete(int)));
-        vart->id=arg1-1;
-        TabTmprLine.push_back(vart); //ВСЁ НЕВЕРНО ВСЕ НЕ ТАК!
-        TabStorage.push_back(TabTmprLine);
+        connect(vart,SIGNAL(deleteit(int)),this,SLOT(TabDelete(int)));//Что это? Пока не используется, но не забыть об этом
+        vart->id=arg1-1;    //ИСПРАВИТЬ ЧТОБЫ ЗДЕСЬ БЫЛ УНИКАЛЬНЫЙ ID
         ui->TabVariant->addTab(vart, QString("Вариант %0").arg(vart->id+1));
-        //ui->TabVariant->setCurrentIndex(ui->TabVariant->count()-1);
-        //Можно реализовать эту возможность в настройках. Тогда будет фокусироваться на последней добавленной кнопке
+        /*ui->TabVariant->setCurrentIndex(ui->TabVariant->count()-1);
+        Можно реализовать эту возможность в настройках. Тогда будет фокусироваться на последней добавленной кнопке*/
         SelectableVariantsOld = arg1;
         ui->AmountOfSelectableVariants->setMinimum(arg1);//Ограничение на удаление
-        //Заполнение из infoNode
-        emit fillButtonText(infoItems[selectedk]->text[1]);//заменить 1 на айди
     }
-    else
+    else//Если уменьшается количество кнопок
     {
         //Если уменьшается количество
     }
-
-    //Заполнение инфоНода данными кнопок для этого этапа //Захера? //Захера здесь?
+    //Заполнение инфоНода данными нового количества кнопок
     infoItems[selectedk]->AmountOfSelectableVariants = arg1;
-    //
 }
 
 void MainWindow::on_TESTBUTTON_clicked()
@@ -477,7 +483,7 @@ void MainWindow::on_TESTBUTTON_clicked()
 
 void MainWindow::TabDelete(int ind)
 {
-    ui->TabVariant->removeTab(ind);
+    /*ui->TabVariant->removeTab(ind);
     arVarTab.remove(ind);
     for (int i=ind; i<ui->TabVariant->count();i++)
     {
@@ -485,5 +491,5 @@ void MainWindow::TabDelete(int ind)
     }
     ui->AmountOfSelectableVariants->setMinimum(ui->AmountOfSelectableVariants->minimum()-1);
     ui->AmountOfSelectableVariants->setValue(ui->AmountOfSelectableVariants->value()-1);
-    SelectableVariantsOld--;
+    SelectableVariantsOld--;*/
 }

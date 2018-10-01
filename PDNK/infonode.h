@@ -3,11 +3,14 @@
 
 #include <QFile>
 #include <QTextStream>
+#include <QObject>
 #include "GlobalVariables.h"
 
-class InfoNode
+class InfoNode : public QObject
 {
+    Q_OBJECT
 public:
+    explicit InfoNode(QObject *parent = 0);
     InfoNode(int n);
     ~InfoNode();
 
@@ -29,8 +32,8 @@ public:
     void SaveToFile(QString dbname);
     void FillInformation(int btnnum, QString txt, int NumOfOut, QVector<int> nxt, int prv);
 private slots:
-    void GetButtonText(int btnnum, QString txt);
-    void GetNumberOfOutcomes(int btnnum, int NOO);
+    void setButtonText(int btnnum, QString txt);
+    void setNumberOfOutcomes(int btnnum, int NOO);
 };
 
 #endif // INFONODE_H

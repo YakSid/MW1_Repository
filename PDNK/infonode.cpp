@@ -5,7 +5,12 @@ InfoNode::InfoNode(int n)
     AmountOfSelectableVariants = 0;
     AllNextNodesAmount = 0;
     this->itemnum=n;
-    //connect(vart,SIGNAL(SendButtonText(QString)), this, SLOT(GetButtonText(QString)));
+}
+
+InfoNode::InfoNode(QObject *parent)
+    : QObject(parent)
+{
+
 }
 
 InfoNode::~InfoNode()
@@ -56,11 +61,12 @@ void InfoNode::FillInformation(int btnnum, QString txt, int NumOfOut, QVector<in
     PrevNodeID = prv;
 }
 
-void InfoNode::GetButtonText(int btnnum, QString txt)
+void InfoNode::setButtonText(int btnnum, QString txt)
 {
     text[btnnum] = txt;
 }
 
-void InfoNode::GetNumberOfOutcomes(int btnnum, int NOO)
+void InfoNode::setNumberOfOutcomes(int btnnum, int NOO)
 {
+    NumberOfOutcomes[btnnum] = NOO;
 }

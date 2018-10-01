@@ -191,7 +191,7 @@ p, li { white-space: pre-wrap; }
       <string>Если 0 - этап конечный</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="isExtreme">
      <property name="geometry">
       <rect>
        <x>470</x>
@@ -1034,7 +1034,7 @@ p, li { white-space: pre-wrap; }
      <string>Обновить</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>11</x>
