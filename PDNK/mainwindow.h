@@ -24,8 +24,8 @@ public:
     ~MainWindow();
 
 signals:
-    void fillButtonText(QString txt);
-    void fillNumberOfOutcomes(int NOO);
+    void fillButtonText(QString txt, int neededid);
+    void fillNumberOfOutcomes(int NOO, int neededid);
 private slots:
     void on_needMOfficer_stateChanged(int arg1);
 
@@ -60,8 +60,6 @@ private slots:
     void slotHide(bool Hide);
 
     void slotMyNumIs(int smth);
-
-    void slotsetScrolls(int prev, int next);
 
     void on_AmountOfSelectableVariants_valueChanged(int arg1);
 

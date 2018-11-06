@@ -418,6 +418,7 @@ void MainWindow::slotMyNumIs(int smth)
     }
     ui->scrollContents_2->setLayout(lay2);
 
+
     //Заполнение данных из infoNode
     ui->NodeDescription->setText(infoItems[selectedk]->NodeDescription);
     ui->NodeFormulas->setText(infoItems[selectedk]->NodeFormulas);
@@ -426,7 +427,9 @@ void MainWindow::slotMyNumIs(int smth)
     SelectableVariantsOld = infoItems[selectedk]->AmountOfSelectableVariants;
     //Загрузка кнопок из infoNode
     //1. Удалить табы
-    ui->TabVariant->clear(); //"Removes all the pages, but does not delete them" Проверить влияет ли на память?
+    for (int i=0; i<SelectableVariantsOld; i++)
+        ui->TabVariant->removeTab(i);
+    ui->TabVariant->clear();
     if (infoItems[selectedk]->AmountOfSelectableVariants == 0)
         ui->TabVariant->setVisible(false);
     else
@@ -435,22 +438,16 @@ void MainWindow::slotMyNumIs(int smth)
     for (int i=0; i<infoItems[selectedk]->AmountOfSelectableVariants; i++)
     {
         vart = new VarTabClass();
-        connect(this, SIGNAL(fillButtonText(QString)), vart, SLOT(slotfillbuttonText(QString)));
-        connect(this, SIGNAL(fillNumberOfOutcomes(int)), vart, SLOT(slotfillNumberOfOutcomes(int)));
-        connect(vart, SIGNAL(SendButtonText(int, QString)), infoItems[selectedk], SLOT(setButtonText(int btnnum, QString txt)));
-        connect(vart, SIGNAL(SendNumberOfOutcomes(int, int)), infoItems[selectedk], SLOT(setNumberOfOutcomes(int btnnum, int NOO)));
         vart->id=i;    //ИСПРАВИТЬ ЧТОБЫ ЗДЕСЬ БЫЛ УНИКАЛЬНЫЙ ID
+        connect(this, SIGNAL(fillButtonText(QString, int)), vart, SLOT(slotfillbuttonText(QString, int)));
         ui->TabVariant->addTab(vart, QString("Вариант %0").arg(vart->id+1));
-        emit fillButtonText(infoItems[selectedk]->text[i]);
-        emit fillNumberOfOutcomes(infoItems[selectedk]->NumberOfOutcomes[i]);
+        emit fillButtonText(infoItems[selectedk]->text[i], i);
+        connect(this, SIGNAL(fillNumberOfOutcomes(int, int)), vart, SLOT(slotfillNumberOfOutcomes(int, int)));
+        emit fillNumberOfOutcomes(infoItems[selectedk]->NumberOfOutcomes[i], i);
+        connect(vart, SIGNAL(SendButtonText(int, QString)), infoItems[selectedk], SLOT(setButtonText(int, QString)));
+        connect(vart, SIGNAL(SendNumberOfOutcomes(int, int)), infoItems[selectedk], SLOT(setNumberOfOutcomes(int, int)));
     }
 }
-
-void MainWindow::slotsetScrolls(int prev, int next)
-{
-    ui->OrderName->setText(QString::number(next));
-}
-
 
 void MainWindow::on_AmountOfSelectableVariants_valueChanged(int arg1)
 {
@@ -459,9 +456,11 @@ void MainWindow::on_AmountOfSelectableVariants_valueChanged(int arg1)
     if (arg1 > SelectableVariantsOld)//Если добавляется новая кнопка
     {
         vart = new VarTabClass();
-        connect(this, SIGNAL(fillButtonText(QString)), vart, SLOT(slotfillbuttonText(QString)));
-        connect(this, SIGNAL(fillNumberOfOutcomes(int)), vart, SLOT(slotfillNumberOfOutcomes(int)));
-        connect(vart,SIGNAL(deleteit(int)),this,SLOT(TabDelete(int)));//Что это? Пока не используется, но не забыть об этом
+        connect(this, SIGNAL(fillButtonText(QString, int)), vart, SLOT(slotfillbuttonText(QString, int)));
+        connect(this, SIGNAL(fillNumberOfOutcomes(int, int)), vart, SLOT(slotfillNumberOfOutcomes(int, int)));
+        connect(vart, SIGNAL(SendButtonText(int, QString)), infoItems[selectedk], SLOT(setButtonText(int, QString)));
+        connect(vart, SIGNAL(SendNumberOfOutcomes(int, int)), infoItems[selectedk], SLOT(setNumberOfOutcomes(int, int)));
+        //connect(vart,SIGNAL(deleteit(int)),this,SLOT(TabDelete(int)));//Что это? Пока не используется, но не забыть об этом
         vart->id=arg1-1;    //ИСПРАВИТЬ ЧТОБЫ ЗДЕСЬ БЫЛ УНИКАЛЬНЫЙ ID
         ui->TabVariant->addTab(vart, QString("Вариант %0").arg(vart->id+1));
         /*ui->TabVariant->setCurrentIndex(ui->TabVariant->count()-1);
@@ -479,6 +478,17 @@ void MainWindow::on_AmountOfSelectableVariants_valueChanged(int arg1)
 
 void MainWindow::on_TESTBUTTON_clicked()
 {
+    QMessageBox msgBox;
+    for (int i=1; i<3; i++)
+    for (int j=0; j<2; j++){
+    QString status = QString("Текст варианта %1 в этапе %2 равен: %3")
+            //.arg(i+1).arg(selectedk).arg(infoItems[selectedk]->text[i]);
+    .arg(j+1).arg(i).arg(infoItems[i]->text[j]);
+    //QString status = QString("Выбран элемент %0")
+            //.arg(selectedk);
+    msgBox.setText(status);
+    msgBox.exec();
+    }
 }
 
 void MainWindow::TabDelete(int ind)

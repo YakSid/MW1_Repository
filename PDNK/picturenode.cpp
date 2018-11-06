@@ -79,7 +79,6 @@ void PictureNode::mousePressEvent(QGraphicsSceneMouseEvent *event)
         selectedlvl = this->lvl;
         selectednum = this->num;
         selectedk = this->itemnum;
-        emit setScrolls(0,3);// for example
         emit MyNumIs(itemnum);
     }
     else

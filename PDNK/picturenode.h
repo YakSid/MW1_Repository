@@ -40,7 +40,6 @@ signals:
     void signal1();
     void signalHide(bool Hide);
     void MyNumIs(int smth);
-    void setScrolls(int prev, int next);
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
 };

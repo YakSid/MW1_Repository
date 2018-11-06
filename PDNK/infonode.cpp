@@ -5,6 +5,11 @@ InfoNode::InfoNode(int n)
     AmountOfSelectableVariants = 0;
     AllNextNodesAmount = 0;
     this->itemnum=n;
+    for (int i=0; i<7; i++)
+    {
+        NumberOfOutcomes[i] = 0;
+        text[i] = "";
+    }
 }
 
 InfoNode::InfoNode(QObject *parent)
@@ -51,14 +56,6 @@ void InfoNode::SaveToFile(QString dbname) // ПЕРЕДЕЛАТЬ, УЖЕ НЕ �
         writeStream << "PreviousNodes" << i << " $" << PreviousNodeID[i] << endl;
     }
     db.close();*/
-}
-
-void InfoNode::FillInformation(int btnnum, QString txt, int NumOfOut, QVector<int> nxt, int prv)
-{
-    text[btnnum]=txt;
-    NumberOfOutcomes[btnnum]=NumOfOut;
-    //ЗАПОЛНИТЬ
-    PrevNodeID = prv;
 }
 
 void InfoNode::setButtonText(int btnnum, QString txt)

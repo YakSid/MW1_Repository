@@ -30,7 +30,6 @@ public:
     //
     void PrepareLinks(QVector <InfoNode*> links, QVector <QString> ids);
     void SaveToFile(QString dbname);
-    void FillInformation(int btnnum, QString txt, int NumOfOut, QVector<int> nxt, int prv);
 private slots:
     void setButtonText(int btnnum, QString txt);
     void setNumberOfOutcomes(int btnnum, int NOO);

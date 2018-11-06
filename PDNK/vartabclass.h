@@ -4,6 +4,7 @@
 
 #include <QWidget>
 #include <QString>
+#include "globalvariables.h"
 
 namespace Ui {
 class VarTabClass;
@@ -31,12 +32,13 @@ private slots:
 
     void on_No_clicked();
 
-    void on_ButtonText_textEdited(const QString &arg1);
+    void on_ButtonText_textChanged(const QString &arg1);
 
     void on_NumberOfOutcomes_valueChanged(int arg1);
 
-    void slotfillbuttonText(QString txt);
-    void slotfillNumberOfOutcomes(int NOO);
+    void slotfillbuttonText(QString txt, int neededid);
+
+    void slotfillNumberOfOutcomes(int NOO, int neededid);
 
 private:
     Ui::VarTabClass *ui;

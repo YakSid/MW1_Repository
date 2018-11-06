@@ -1,5 +1,6 @@
 #include "vartabclass.h"
 #include "ui_vartabclass.h"
+#include "QMessageBox"
 
 VarTabClass::VarTabClass(QWidget *parent) :
     QWidget(parent),
@@ -13,6 +14,7 @@ VarTabClass::VarTabClass(QWidget *parent) :
     ui->No->setEnabled(false);
     ui->line->setVisible(true);
     id=-1;
+    NumberOfOutcomes = 1;
 }
 
 VarTabClass::~VarTabClass()
@@ -47,7 +49,7 @@ void VarTabClass::on_No_clicked()
     ui->line->setVisible(true);
 }
 
-void VarTabClass::on_ButtonText_textEdited(const QString &arg1)
+void VarTabClass::on_ButtonText_textChanged(const QString &arg1)
 {
     emit SendButtonText(id, arg1);
 }
@@ -57,12 +59,14 @@ void VarTabClass::on_NumberOfOutcomes_valueChanged(int arg1)
     emit SendNumberOfOutcomes(id, arg1);
 }
 
-void VarTabClass::slotfillbuttonText(QString txt)
+void VarTabClass::slotfillbuttonText(QString txt, int neededid)
 {
-    ui->ButtonText->setText(txt);
+    if (id == neededid)
+        ui->ButtonText->setText(txt);
 }
 
-void VarTabClass::slotfillNumberOfOutcomes(int NOO)
+void VarTabClass::slotfillNumberOfOutcomes(int NOO, int neededid)
 {
-    ui->NumberOfOutcomes->setValue(NOO);
+    if (id == neededid)
+        ui->NumberOfOutcomes->setValue(NOO);
 }

@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Авторизация</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="pic.qrc">
+    <normaloff>:/new/prefix1/ico2.ico</normaloff>:/new/prefix1/ico2.ico</iconset>
   </property>
   <widget class="QPushButton" name="EnterSystem">
    <property name="geometry">
@@ -101,6 +105,8 @@
    </item>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="pic.qrc"/>
+ </resources>
  <connections/>
 </ui>
