@@ -24,8 +24,8 @@ public:
     ~MainWindow();
 
 signals:
-    void fillButtonText(QString txt, int neededid);
-    void fillNumberOfOutcomes(int NOO, int neededid);
+    void fillButtonText(QString txt, int neededid, int idnode);
+    void fillNumberOfOutcomes(int NOO, int neededid, int idnode);
 private slots:
     void on_needMOfficer_stateChanged(int arg1);
 

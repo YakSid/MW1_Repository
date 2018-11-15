@@ -323,7 +323,6 @@ void MainWindow::on_UpdateButton_clicked()
         connect(circle,SIGNAL(signal1()),this, SLOT(slotFromPictureNode()));
         connect(circle,SIGNAL(signalHide(bool)),this, SLOT(slotHide(bool)));
         connect(circle,SIGNAL(MyNumIs(int)), this, SLOT(slotMyNumIs(int)));
-        connect(circle,SIGNAL(setScrolls(int,int)), this, SLOT(slotsetScrolls(int,int)));
         Items.append(circle);
         k++;
     }
@@ -439,11 +438,12 @@ void MainWindow::slotMyNumIs(int smth)
     {
         vart = new VarTabClass();
         vart->id=i;    //ИСПРАВИТЬ ЧТОБЫ ЗДЕСЬ БЫЛ УНИКАЛЬНЫЙ ID
-        connect(this, SIGNAL(fillButtonText(QString, int)), vart, SLOT(slotfillbuttonText(QString, int)));
+        vart->parentid=selectedk;
+        connect(this, SIGNAL(fillButtonText(QString, int, int)), vart, SLOT(slotfillbuttonText(QString, int, int)));
         ui->TabVariant->addTab(vart, QString("Вариант %0").arg(vart->id+1));
-        emit fillButtonText(infoItems[selectedk]->text[i], i);
-        connect(this, SIGNAL(fillNumberOfOutcomes(int, int)), vart, SLOT(slotfillNumberOfOutcomes(int, int)));
-        emit fillNumberOfOutcomes(infoItems[selectedk]->NumberOfOutcomes[i], i);
+        emit fillButtonText(infoItems[selectedk]->text[i], i, selectedk);
+        connect(this, SIGNAL(fillNumberOfOutcomes(int, int, int)), vart, SLOT(slotfillNumberOfOutcomes(int, int, int)));
+        emit fillNumberOfOutcomes(infoItems[selectedk]->NumberOfOutcomes[i], i, selectedk);
         connect(vart, SIGNAL(SendButtonText(int, QString)), infoItems[selectedk], SLOT(setButtonText(int, QString)));
         connect(vart, SIGNAL(SendNumberOfOutcomes(int, int)), infoItems[selectedk], SLOT(setNumberOfOutcomes(int, int)));
     }
@@ -462,6 +462,7 @@ void MainWindow::on_AmountOfSelectableVariants_valueChanged(int arg1)
         connect(vart, SIGNAL(SendNumberOfOutcomes(int, int)), infoItems[selectedk], SLOT(setNumberOfOutcomes(int, int)));
         //connect(vart,SIGNAL(deleteit(int)),this,SLOT(TabDelete(int)));//Что это? Пока не используется, но не забыть об этом
         vart->id=arg1-1;    //ИСПРАВИТЬ ЧТОБЫ ЗДЕСЬ БЫЛ УНИКАЛЬНЫЙ ID
+        vart->parentid=selectedk;
         ui->TabVariant->addTab(vart, QString("Вариант %0").arg(vart->id+1));
         /*ui->TabVariant->setCurrentIndex(ui->TabVariant->count()-1);
         Можно реализовать эту возможность в настройках. Тогда будет фокусироваться на последней добавленной кнопке*/

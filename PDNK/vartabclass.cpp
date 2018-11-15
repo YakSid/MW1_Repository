@@ -14,6 +14,7 @@ VarTabClass::VarTabClass(QWidget *parent) :
     ui->No->setEnabled(false);
     ui->line->setVisible(true);
     id=-1;
+    parentid=-1;
     NumberOfOutcomes = 1;
 }
 
@@ -59,14 +60,14 @@ void VarTabClass::on_NumberOfOutcomes_valueChanged(int arg1)
     emit SendNumberOfOutcomes(id, arg1);
 }
 
-void VarTabClass::slotfillbuttonText(QString txt, int neededid)
+void VarTabClass::slotfillbuttonText(QString txt, int neededid, int idnode)
 {
-    if (id == neededid)
+    if (id == neededid && parentid == idnode)
         ui->ButtonText->setText(txt);
 }
 
-void VarTabClass::slotfillNumberOfOutcomes(int NOO, int neededid)
+void VarTabClass::slotfillNumberOfOutcomes(int NOO, int neededid, int idnode)
 {
-    if (id == neededid)
+    if (id == neededid && parentid == idnode)
         ui->NumberOfOutcomes->setValue(NOO);
 }

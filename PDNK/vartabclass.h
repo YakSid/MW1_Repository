@@ -18,6 +18,7 @@ public:
     explicit VarTabClass(QWidget *parent = 0);
     ~VarTabClass();
     int id;
+    int parentid; //Номер звена которому принадлежит кнопка
     QString ButtonText;
     int NumberOfOutcomes;
 
@@ -36,9 +37,9 @@ private slots:
 
     void on_NumberOfOutcomes_valueChanged(int arg1);
 
-    void slotfillbuttonText(QString txt, int neededid);
+    void slotfillbuttonText(QString txt, int neededid, int idnode);
 
-    void slotfillNumberOfOutcomes(int NOO, int neededid);
+    void slotfillNumberOfOutcomes(int NOO, int neededid, int idnode);
 
 private:
     Ui::VarTabClass *ui;
