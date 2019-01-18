@@ -11,10 +11,12 @@ class InfoNode : public QObject
     Q_OBJECT
 public:
     explicit InfoNode(QObject *parent = 0);
-    InfoNode(int n);
+    InfoNode(int n, int plvl, int pnum);//n - номер, plvl - уровень, pnum - номер узла в уровне
+    //0 уровень - для одного начального звена, 1 уровень для начальных и т.д.
+    //num нумерация идет с 1, а не с нуля
     ~InfoNode();
 
-    int lvl,num; //Уровень, на котором находится узел и его номер в уровне
+    int lvl, num; //Уровень, на котором находится узел и его номер в уровне
     int itemnum; //Порядковый номер узла
     //Общая информация
     QString NodeID; //Имя, пока заменяется порядковым номером itemnum

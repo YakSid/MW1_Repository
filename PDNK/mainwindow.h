@@ -22,6 +22,34 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    //Переменные
+    QString FileDBName;
+    QString WriterName;
+    QString questcount; // string analog of QuestsCounter
+    int QuestsCounter;
+    QString IDQuest;
+    //info global
+    QString OrderDepartment;
+    QString OrderName;
+    QString OrderDescription;
+    bool OrderIsInner; //1 - vnutrenniy, 0 - vneshniy
+    int POleft; int POright; //uslovie1
+    QString AdditionalConditions; //ostal'nie usloviya. Temporally in string
+    int AllAmount;
+    int NumberOrdinary, NumberMOfficer, NumberSOfficer, NumberBoss;
+    QString AdditionalConditionsForStaff; // Temporally in string
+    int AmountOfFirstNodes = 1;
+    //
+    QVector <InfoNode*> infoItems;
+    QVector <PictureNode*> Items;
+    QVector < QVector <QString> > Node;
+    QVector <QString> tmpLine;
+    QString tmpName;
+    int SelectableVariantsOld=0;
+    int tmpSize; // for updating QuestsCounter
+    int CNNTickets=0; //ChekedNewNodeTicket Сколько раз можно избежать цикла инкрементации при создании нового вартаба
+    bool FirstLaunching=true;
+    //
 
 signals:
     void fillButtonText(QString txt, int neededid, int idnode);
@@ -64,8 +92,6 @@ private slots:
     void on_AmountOfSelectableVariants_valueChanged(int arg1);
 
     void on_TESTBUTTON_clicked();
-
-    void TabDelete(int ind);
 
 private:
     Ui::MainWindow *ui;

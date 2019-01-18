@@ -1,14 +1,18 @@
 #include "infonode.h"
 
-InfoNode::InfoNode(int n)
+InfoNode::InfoNode(int n, int plvl, int pnum)
 {
     AmountOfSelectableVariants = 0;
     AllNextNodesAmount = 0;
     this->itemnum=n;
+    lvl = plvl;
+    num = pnum;
     for (int i=0; i<7; i++)
     {
         NumberOfOutcomes[i] = 0;
         text[i] = "";
+        for (int j=0; j<7; j++)
+            NextNodeID[i][j]=0;
     }
 }
 

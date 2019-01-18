@@ -1,35 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-QString FileDBName;
-QString WriterName;
-QString questcount; // string analog of QuestsCounter
-int QuestsCounter;
-QString IDQuest;
-//info global
-QString OrderDepartment;
-QString OrderName;
-QString OrderDescription;
-bool OrderIsInner; //1 - vnutrenniy, 0 - vneshniy
-int POleft; int POright; //uslovie1
-QString AdditionalConditions; //ostal'nie usloviya. Temporally in string
-int AllAmount;
-int NumberOrdinary, NumberMOfficer, NumberSOfficer, NumberBoss;
-QString AdditionalConditionsForStaff; // Temporally in string
-int AmountOfFirstNodes = 1;
-//
-QVector <InfoNode*> infoItems;
-QVector <PictureNode*> Items;
-int k=0; //kolvo nodes
-//QString ABC  = "abcdefghijkl";
-QVector < QVector <QString> > Node;
-QVector <QString> tmpLine;
-QString tmpName;
 int selectedlvl=-1;
 int selectednum=-1;
 int selectedk = -1;
-int SelectableVariantsOld=0;
-int tmpSize; // for updating QuestsCounter
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -248,8 +222,6 @@ void MainWindow::on_SaveQuest_clicked()
             {
                 if (questcount.at(i) == '$')
                 {
-                    int bufsize; // razmer simvolov posle $ iznachal'no
-                    bufsize = tmpSize-i;
 
                     if (QuestsCounter != 10)
                     {
@@ -285,49 +257,95 @@ void MainWindow::on_UpdateButton_clicked()
     //Очистка сцены и очистка графического массива
     scene->clear();
     Items.clear();
-    k=0;
     //Создание начального звена
-    circle = new PictureNode(0,0,0,0,k);
-    info = new InfoNode(k);
-    infoItems.push_back(info);
+    circle = new PictureNode(0,0,0,0,0);
+    if (infoItems.count()==0)
+    {
+        info = new InfoNode(0,0,1);
+        infoItems.push_back(info);
+    }
     connect(circle,SIGNAL(signal1()),this, SLOT(slotFromPictureNode()));
     connect(circle,SIGNAL(signalHide(bool)),this, SLOT(slotHide(bool)));
     connect(circle,SIGNAL(MyNumIs(int)), this, SLOT(slotMyNumIs(int)));
-    connect(circle,SIGNAL(setScrolls(int,int)), this, SLOT(slotsetScrolls(int,int)));
     Items.append(circle);
-    Items[k]->setExtreme();
-    k++;
-    //Если не хватает инфоНодов
-    if (infoItems.count()<AmountOfFirstNodes || infoItems.count() == 1)
-    {
-        //то генерирует инфоНоды
-        for (int i=infoItems.count(); i<=AmountOfFirstNodes; i++)
+    Items[0]->setExtreme();
+    //Создание начальных через AmountOfFirstNodes
+    if (infoItems.count()==1)
+        for (int i=1; i<=AmountOfFirstNodes; i++)//создание iнодов
         {
-            //tmpName = ABC[i];
-            //tmpLine.append(tmpName);
-            info = new InfoNode(i);
+            info = new InfoNode(i,1,i);
             infoItems.push_back(info);
         }
-        //Node.append(tmpLine);
-    }
-    else
+    for (int i=0; i<AmountOfFirstNodes; i++)//создание gнодов
     {
-        //
-    }
-    //Инициализация графических элементов
-    for (int i=1; i<=AmountOfFirstNodes; i++)
-    {
-        int deltaY=20*(AmountOfFirstNodes-1)/2;
-        circle = new PictureNode(40,-deltaY+20*(i-1),1,i-1,k);
-        scene->addLine(10,5,45,-deltaY+20*(i-1)+5,QPen(Qt::black));
+        int deltaY=10*(AmountOfFirstNodes-1);
+        circle = new PictureNode(40,-deltaY+20*i,1,i,Items.count());
+        scene->addLine(10,5,40+5,-deltaY+20*i+5,QPen(Qt::black));//Сделать, чтобы он шел от нода родителя
         connect(circle,SIGNAL(signal1()),this, SLOT(slotFromPictureNode()));
         connect(circle,SIGNAL(signalHide(bool)),this, SLOT(slotHide(bool)));
         connect(circle,SIGNAL(MyNumIs(int)), this, SLOT(slotMyNumIs(int)));
         Items.append(circle);
-        k++;
+    }
+    //Нахождение глубины в info
+    int Maxlvl=1;//Количество уровней или иначе - существующая глубина дерева которые уже существуют
+    for (int i=1; i<infoItems.count(); i++)//Нахождение количества уровней
+        if (infoItems[i]->lvl > Maxlvl)
+            Maxlvl = infoItems[i]->lvl;
+    //Проход по каждому уровню начиная с 1(уровень начальных)
+    for (int lvl=1; lvl<Maxlvl; lvl++)
+    {
+        int NodesInLvl=0;
+        //Нахождение количества элементов в уровне
+        for (int inod=1; inod<infoItems.count(); inod++)
+        {
+            if (infoItems[inod]->lvl == lvl)
+                NodesInLvl++;
+        }
+        //Проход по каждому звену
+        for (int inod=1; inod<infoItems.count(); inod++)
+        {
+            if (infoItems[inod]->lvl == lvl)//в уровне
+            //Провека узла на существование указанных детей (сравниваем указанное количество с существующими наследниками)
+            {
+                for (int button=0; button<7; button++)//проход по каждой кнопке
+                {
+                    int ExistingChildren=0; //Количество существующих детей. (будем сравнивать с количеством указанных - NumberOfOutcomes
+                    for (int out=0; out<7; out++)//Проход по всему возможному количеству исходов
+                    {
+                        if (infoItems[inod]->NextNodeID[button][out] != 0)//Считаем количество существующих наследников
+                            ExistingChildren++;
+                    }
+                    if (infoItems[inod]->NumberOfOutcomes[button] > ExistingChildren)//Если указано больше, чем есть, то
+                    {
+                        //инициализировать новые iноды
+                        int newnod=0;
+                        for (int out=0; out<7; out++)//Проход по всему возможному количеству исходов
+                        {//Если место свободное и если ещё нужно записать, то записываем id нода сюда, если нет идем дальше - ищем свободное место
+                            if (infoItems[inod]->NextNodeID[button][out] == 0 && newnod<infoItems[inod]->NumberOfOutcomes[button]-ExistingChildren)
+                            {
+                                info = new InfoNode(infoItems.count(),lvl+1,out);//Точно ли out?
+                                infoItems.push_back(info);
+                                infoItems[infoItems.count()]->PrevNodeID = inod;//Записываем в созданный нод, кто его родитель
+                                infoItems[inod]->NextNodeID[button][out] = infoItems.count(); //Записал в свободное место количество iнодов - сейчас это id нового нода
+                                newnod++;
+                            }
+                        }
+                    }
+                }
+                int deltaY=10*(NodesInLvl-1);
+                circle = new PictureNode(40*lvl,-deltaY+20*200,lvl,100,Items.count());//100 - это номер в группе, 200 это номер в уровне ЗАМЕНИТЬ
+                scene->addLine(10,5,40*lvl+5,-deltaY+20+5,QPen(Qt::black));//Сделать, чтобы он шел от нода родителя
+                //circle = new PictureNode(40*lvl,-deltaY+20*(i-1),lvl,i-1,Items.count());//i - это номер в группе
+                //scene->addLine(10,5,40*lvl+5,-deltaY+20*(i-1)+5,QPen(Qt::black));//Сделать, чтобы он шел от нода родителя
+                connect(circle,SIGNAL(signal1()),this, SLOT(slotFromPictureNode()));
+                connect(circle,SIGNAL(signalHide(bool)),this, SLOT(slotHide(bool)));
+                connect(circle,SIGNAL(MyNumIs(int)), this, SLOT(slotMyNumIs(int)));
+                Items.append(circle);
+            }
+        }
     }
     //Размещает инициализированные графические элементы
-    for (int i=0; i<k; i++)
+    for (int i=0; i<Items.count(); i++)
         scene->addItem(Items[i]);
 
     //QGraphicsSceneHelpEvent и setToolTip() для подсказок
@@ -386,7 +404,6 @@ void MainWindow::slotHide(bool Hide)
     }
 }
 
-bool FirstLaunching=true;
 void MainWindow::slotMyNumIs(int smth)
 {
     //Установка имени тайтла
@@ -400,7 +417,6 @@ void MainWindow::slotMyNumIs(int smth)
         //
     }
     //Установка scrollArea
-
     QVBoxLayout * lay = new QVBoxLayout(this);
     for (int i=0; i<8; i++) {
          QPushButton *button = new QPushButton("");
@@ -408,7 +424,6 @@ void MainWindow::slotMyNumIs(int smth)
          lay->addWidget(button);
     }
     ui->scrollContents->setLayout(lay);
-
     QVBoxLayout * lay2 = new QVBoxLayout(this);
     for (int i=0; i<8; i++) {
          QPushButton *button = new QPushButton("");
@@ -417,10 +432,12 @@ void MainWindow::slotMyNumIs(int smth)
     }
     ui->scrollContents_2->setLayout(lay2);
 
-
     //Заполнение данных из infoNode
     ui->NodeDescription->setText(infoItems[selectedk]->NodeDescription);
     ui->NodeFormulas->setText(infoItems[selectedk]->NodeFormulas);
+    CNNTickets = infoItems[selectedk]->AmountOfSelectableVariants - ui->TabVariant->count();
+    if (CNNTickets < 0)
+        CNNTickets=0;
     ui->AmountOfSelectableVariants->setMinimum(infoItems[selectedk]->AmountOfSelectableVariants);
     ui->AmountOfSelectableVariants->setValue(infoItems[selectedk]->AmountOfSelectableVariants);
     SelectableVariantsOld = infoItems[selectedk]->AmountOfSelectableVariants;
@@ -468,6 +485,10 @@ void MainWindow::on_AmountOfSelectableVariants_valueChanged(int arg1)
         Можно реализовать эту возможность в настройках. Тогда будет фокусироваться на последней добавленной кнопке*/
         SelectableVariantsOld = arg1;
         ui->AmountOfSelectableVariants->setMinimum(arg1);//Ограничение на удаление
+        if (CNNTickets==0)
+            infoItems[selectedk]->NumberOfOutcomes[arg1-1]++;
+        else
+            CNNTickets--;
     }
     else//Если уменьшается количество кнопок
     {
@@ -479,28 +500,9 @@ void MainWindow::on_AmountOfSelectableVariants_valueChanged(int arg1)
 
 void MainWindow::on_TESTBUTTON_clicked()
 {
-    QMessageBox msgBox;
-    for (int i=1; i<3; i++)
-    for (int j=0; j<2; j++){
-    QString status = QString("Текст варианта %1 в этапе %2 равен: %3")
-            //.arg(i+1).arg(selectedk).arg(infoItems[selectedk]->text[i]);
-    .arg(j+1).arg(i).arg(infoItems[i]->text[j]);
-    //QString status = QString("Выбран элемент %0")
-            //.arg(selectedk);
+    /*QMessageBox msgBox;
+    QString status = QString("")
+    .arg();
     msgBox.setText(status);
-    msgBox.exec();
-    }
-}
-
-void MainWindow::TabDelete(int ind)
-{
-    /*ui->TabVariant->removeTab(ind);
-    arVarTab.remove(ind);
-    for (int i=ind; i<ui->TabVariant->count();i++)
-    {
-        arVarTab[i]->id--;
-    }
-    ui->AmountOfSelectableVariants->setMinimum(ui->AmountOfSelectableVariants->minimum()-1);
-    ui->AmountOfSelectableVariants->setValue(ui->AmountOfSelectableVariants->value()-1);
-    SelectableVariantsOld--;*/
+    msgBox.exec();*/
 }
